@@ -97,7 +97,7 @@ module Graphics
       @points = points
       @pixel_on  = on
       @pixel_off = off
-      self.canvas(width, height).map { |row| self.process_row(row) }.join(separator)
+      canvas(width, height).map { |row| process_row(row) }.join(separator)
     end
   end
 
