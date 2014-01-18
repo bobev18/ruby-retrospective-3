@@ -10,10 +10,10 @@ class Task
 end
 
 class Criteria
-  attr_reader :block
+  attr_reader :lambda
 
-  def initialize(block)
-    @block = block
+  def initialize(lambda)
+    @lambda = lambda
   end
 
   def Criteria.status(target_status)
@@ -29,15 +29,15 @@ class Criteria
   end
 
   def &(other)
-    Criteria.new -> todo { @block.call(todo) and other.block.call(todo) }
+    Criteria.new -> todo { @lambda.call(todo) and other.lambda.call(todo) }
   end
 
   def |(other)
-    Criteria.new -> todo { @block.call(todo) or other.block.call(todo) }
+    Criteria.new -> todo { @lambda.call(todo) or other.lambda.call(todo) }
   end
 
   def !
-    Criteria.new -> todo { not @block.call(todo) }
+    Criteria.new -> todo { not @lambda.call(todo) }
   end
 end
 
@@ -58,7 +58,7 @@ class TodoList
   end
 
   def filter(criteria)
-    TodoList.new @task_list.select(&criteria.block).compact
+    TodoList.new @task_list.select(&criteria.lambda).compact
   end
 
   def adjoin(other)
