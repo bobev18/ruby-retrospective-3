@@ -1,37 +1,3 @@
-HTML_PREFIX = <<-PREDATA
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Rendered Canvas</title>
-  <style type="text/css">
-    .canvas {
-      font-size: 1px;
-      line-height: 1px;
-    }
-    .canvas * {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 5px;
-    }
-    .canvas i {
-      background-color: #eee;
-    }
-    .canvas b {
-      background-color: #333;
-    }
-  </style>
-</head>
-<body>
-  <div class="canvas">
-PREDATA
-
-HTML_SUFFIX = <<-POSTDATA
-  </div>
-</body>
-</html>
-POSTDATA
-
 module Graphics
   class Canvas
     attr_reader :width, :height
@@ -77,9 +43,43 @@ module Graphics
     end
 
     class Html < Renderers
+      HTML_HEADER = <<-PREDATA
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Rendered Canvas</title>
+        <style type="text/css">
+          .canvas {
+            font-size: 1px;
+            line-height: 1px;
+          }
+          .canvas * {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+          }
+          .canvas i {
+            background-color: #eee;
+          }
+          .canvas b {
+            background-color: #333;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="canvas">
+      PREDATA
+
+      HTML_FOOTER = <<-POSTDATA
+        </div>
+      </body>
+      </html>
+      POSTDATA
+
       def self.render(width, height, points)
-        HTML_PREFIX + super("<b></b>", "<i></i>", "<br>", width, height, points) +\
-          HTML_SUFFIX
+        HTML_HEADER + super("<b></b>", "<i></i>", "<br>", width, height, points) +\
+          HTML_FOOTER
       end
     end
 
