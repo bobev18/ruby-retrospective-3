@@ -1,37 +1,55 @@
 class Integer
   def prime?
-    (2..self-1).all? { |e| ((self/e) * e) != self }
+    # TDD helps
+    # drop self
+    # know the vocabulary: pred, remainder, nonzero?, nil?, chars, empty?
+    return false if self < 2
+    2.upto(pred).all? { |divisor| remainder(divisor).nonzero? }
   end
+
   def prime_factors
-    number, result, divisor = self.abs, [], 1
-    while number>1 and divisor+=1
-      result << divisor and number /= divisor while number % divisor == 0
-      divisor = number-1 if divisor > Math.sqrt(number)
-    end
-    result
+    return [] if self == 1
+    factor = (2..abs).find { |x| remainder(x).zero? }
+    [factor] + (abs / factor).prime_factors
   end
+
   def harmonic
-    1.upto(self).inject { |sum, n| sum + Rational(1, n) }
+    1.upto(self).reduce { |sum, number| sum + Rational(1, number) }
   end
+
   def digits
-    self.abs.to_s.split('').map { |s| s.to_i }
+    abs.to_s.chars.map &:to_i
   end
 end
+
 class Array
   def frequencies
-    result = {}
-    self.map { |e| result[e] = self.count(e) }
-    result
+    # take full advantage of _with_ methods
+    uniq.each_with_object({}) do |element, result|
+      result[element] = count element
+    end
   end
+
   def average
-    self.reduce(:+)/self.size.to_f
+    reduce(:+) / length.to_f unless empty?
   end
+
   def drop_every(n)
-    result = []
-    self.each_index { |i| result << self[i] if (i+1) % n != 0  }
-    result
+    # I have worked too much with Python
+    each_slice(n).flat_map { |slice| slice.take(n - 1) }
   end
+
   def combine_with(other)
-    self.zip(other).flatten.select { |e| e != nil }
+    # flaten can take argument
+    # I had to see the solution to fully understand the requirements
+    # Cannot be solved in any other way:
+    #   cyceling through arrays requires over 6 lines
+    #   expanding the shorter array with nils before the zip need compact,
+    #                     which drops elemets that are nil in the original
+
+    longer, shorter = self.length > other.length ? [self, other] : [other, self]
+    combined = take(shorter.length).zip(other.take(shorter.length)).flatten(1)
+    rest     = longer.drop(shorter.length)
+    combined + rest
   end
 end
