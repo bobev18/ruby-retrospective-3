@@ -102,10 +102,9 @@ module Graphics
   end
 
   module Shape
-    def eql?(other)
-      self == other and self.class == other.class
-    end
-
+    # removed definition of eql? from here
+    # but I don't see why the use of `alias eql? ==` is considered better
+    # at least with eql? in module, it had some purpose of it as a container
     def hash
       pixels.hash
     end
@@ -127,6 +126,8 @@ module Graphics
     def ==(other)
       @x == other.x and @y == other.y
     end
+
+    alias eql? ==
 
     def <=>(other)
       result = @x <=> other.x
@@ -155,6 +156,8 @@ module Graphics
     def ==(other)
       @from == other.from and @to == other.to
     end
+
+    alias eql? ==
 
     def pixels
       delta_x, delta_y = @to.x - @from.x, @to.y - @from.y
@@ -193,6 +196,8 @@ module Graphics
     def ==(other)
       @top_left == other.top_left and @bottom_right == other.bottom_right
     end
+
+    alias eql? ==
 
     def pixels
       [
