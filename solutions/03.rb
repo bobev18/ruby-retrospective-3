@@ -109,6 +109,7 @@ module Graphics
 
   class Point
     include Hashing
+    include Comparable
     attr_reader :x, :y
 
     def initialize(x, y)
@@ -138,10 +139,10 @@ module Graphics
 
   class Line
     attr_reader :from, :to
-    include Shape
+    include Hashing
 
     def initialize(point_a, point_b)
-      if (point_a <=> point_b) > 0
+      if point_a > point_b
         @from = point_b
         @to   = point_a
       else
@@ -179,10 +180,10 @@ module Graphics
 
   class Rectangle
     attr_reader :left, :right, :top_left, :top_right, :bottom_right, :bottom_left
-    include Shape
+    include Hashing
 
     def initialize(point_a, point_b)
-      if (point_a <=> point_b) > 0
+      if point_a > point_b
         @left, @right = point_b, point_a
       else
         @left, @right = point_a, point_b
