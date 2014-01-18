@@ -183,11 +183,9 @@ module Graphics
 
     def initialize(point_a, point_b)
       if (point_a <=> point_b) > 0
-        @left  = point_b
-        @right = point_a
+        @left, @right = point_b, point_a
       else
-        @left  = point_a
-        @right = point_b
+        @left, @right = point_a, point_b
       end
       determine_corners
     end
