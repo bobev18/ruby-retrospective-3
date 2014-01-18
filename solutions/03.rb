@@ -158,9 +158,7 @@ module Graphics
 
     def pixels
       delta_x, delta_y = @to.x - @from.x, @to.y - @from.y
-      if delta_x != 0
-        slope = delta_y/delta_x.to_f
-      end
+      slope = delta_y/delta_x.to_f unless delta_x.zero?
       if slope
         rasterize([delta_x, delta_y].max, slope).map { |x, y| [from.x + x, from.y + y] }
       else
