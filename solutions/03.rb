@@ -138,8 +138,8 @@ module Graphics
   end
 
   class Line
-    attr_reader :from, :to
     include Hashing
+    attr_reader :from, :to
 
     def initialize(point_a, point_b)
       if point_a > point_b
@@ -179,8 +179,8 @@ module Graphics
   end
 
   class Rectangle
-    attr_reader :left, :right, :top_left, :top_right, :bottom_right, :bottom_left
     include Hashing
+    attr_reader :left, :right, :top_left, :top_right, :bottom_right, :bottom_left
 
     def initialize(point_a, point_b)
       if point_a > point_b
