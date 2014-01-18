@@ -101,18 +101,15 @@ module Graphics
     end
   end
 
-  module Shape
-    # removed definition of eql? from here
-    # but I don't see why the use of `alias eql? ==` is considered better
-    # at least with eql? in module, it had some purpose of it as a container
+  module Hashing
     def hash
       pixels.hash
     end
   end
 
   class Point
+    include Hashing
     attr_reader :x, :y
-    include Shape
 
     def initialize(x, y)
       @x = x
