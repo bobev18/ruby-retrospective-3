@@ -1,6 +1,6 @@
 module Graphics
   class Canvas
-    attr_reader :width, :height
+    attr_reader :width, :height, :points
 
     def initialize(width, height)
       @width = width
@@ -25,7 +25,7 @@ module Graphics
     end
 
     def render_as(renderer)
-      renderer.render(@width, @height, @points)
+      renderer.new(self).render
     end
 
     private
@@ -37,8 +37,8 @@ module Graphics
 
   class Renderers
     class Ascii < Renderers
-      def self.render(width, height, points)
-        super("@", "-", "\n", width, height, points)
+      def render
+        super("@", "-", "\n")
       end
     end
 
@@ -77,27 +77,31 @@ module Graphics
       </html>
       POSTDATA
 
-      def self.render(width, height, points)
-        HTML_HEADER + super("<b></b>", "<i></i>", "<br>", width, height, points) +\
-          HTML_FOOTER
+      def render
+        HTML_HEADER + super("<b></b>", "<i></i>", "<br>") + HTML_FOOTER
       end
+    end
+
+    def initialize(canvas)
+      @width = canvas.width
+      @height = canvas.height
+      @points = canvas.points
+    end
+
+    def render(on, off, separator)
+      @pixel_on  = on
+      @pixel_off = off
+      canvas.map { |row| process_row(row) }.join(separator)
     end
 
     private
 
-    def self.process_row(row)
+    def process_row(row)
       row.map { |point| @points.include?(point) ? @pixel_on : @pixel_off }.join
     end
 
-    def self.canvas(width, height)
-      0.upto(height - 1).map { |y| 0.upto(width - 1).map { |x| [x, y] } }
-    end
-
-    def self.render(on, off, separator, width, height, points)
-      @points = points
-      @pixel_on  = on
-      @pixel_off = off
-      canvas(width, height).map { |row| process_row(row) }.join(separator)
+    def canvas
+      0.upto(@height.pred).map { |y| 0.upto(@width.pred).map { |x| [x, y] } }
     end
   end
 
@@ -208,7 +212,7 @@ module Graphics
 
     private
 
-    def corner_setter top_left, top_right, bottom_right, bottom_left
+    def corner_setter( top_left, top_right, bottom_right, bottom_left)
       @top_left     = top_left
       @top_right    = top_right
       @bottom_right = bottom_right
