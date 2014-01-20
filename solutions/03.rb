@@ -163,7 +163,8 @@ module Graphics
 
     def pixels
       delta_x, delta_y = @to.x - @from.x, @to.y - @from.y
-      slope = delta_y/delta_x.to_f unless delta_x.zero?
+      slope = delta_y / delta_x.to_f unless delta_x.zero?
+
       if slope
         rasterize([delta_x, delta_y].max, slope).map { |x, y| [from.x + x, from.y + y] }
       else
@@ -175,9 +176,9 @@ module Graphics
 
     def rasterize(length, slope)
       if slope > 1
-        0.upto(length).map { |i| [(i/slope).round, i] }
+        0.upto(length).map { |i| [(i / slope).round, i] }
       else
-        0.upto(length).map { |i| [i, (i*slope).round] }
+        0.upto(length).map { |i| [i, (i * slope).round] }
       end
     end
   end
@@ -207,12 +208,12 @@ module Graphics
         [@top_right   , @bottom_right],
         [@bottom_right, @bottom_left],
         [@bottom_left , @top_left]
-      ].map { |points| Line.new *points }.map(&:pixels).reduce &:+
+      ].map { |a, b| Line.new a, b }.map(&:pixels).reduce &:+
     end
 
     private
 
-    def corner_setter( top_left, top_right, bottom_right, bottom_left)
+    def corner_setter(top_left, top_right, bottom_right, bottom_left)
       @top_left     = top_left
       @top_right    = top_right
       @bottom_right = bottom_right
