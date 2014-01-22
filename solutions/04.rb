@@ -5,7 +5,6 @@ class Asm
     asm.execute
   end
 
-
   class Operations
     attr_reader :operations
 
@@ -94,7 +93,30 @@ class Asm
     end
   end
 
+  module Jumpers
+
+    def jump_not_equal(position)
+      jump(position) if @comparison != 0
+    end
+
+    jumps = {
+      jump_equal: :==,
+      # jump_not_equal: :_=,
+      jump_less: :<,
+      jump_less_equal: :<=,
+      jump_greater: :>,
+      jump_greater_equal: :>=,
+    }
+
+    jumps.each do |operation_name, operation|
+      define_method operation_name do |position|
+        jump(position, operation)# if @comparison.public_send(operation, 0)
+      end
+    end
+  end
+
   class Processor < Operations
+    include Jumpers
     attr_reader :ax, :bx, :cx, :dx
 
     def initialize
@@ -144,19 +166,8 @@ class Asm
       val = read(value)
       base = read(register)
       write(:comparison, base - val)
-
-      # case register
-      #   when :ax then @comparison = @ax - val
-      #   when :bx then @comparison = @bx - val
-      #   when :cx then @comparison = @cx - val
-      #   when :dx then @comparison = @dx - val
-      # end
       nil
     end
-
-    # def method_missing(name, *args)
-    #   super
-    # end
 
     def jump(position, operation = nil)
       return nil if operation and not @comparison.public_send(operation, 0)
@@ -166,25 +177,6 @@ class Asm
         public_send(position)
       else
         position
-      end
-    end
-
-    def jump_not_equal(position)
-      jump(position) if @comparison != 0
-    end
-
-    jumps = {
-      jump_equal: :==,
-      # jump_not_equal: :_=,
-      jump_less: :<,
-      jump_less_equal: :<=,
-      jump_greater: :>,
-      jump_greater_equal: :>=,
-    }
-
-    jumps.each do |operation_name, operation|
-      define_method operation_name do |position|
-        jump(position, operation)# if @comparison.public_send(operation, 0)
       end
     end
 
