@@ -1,6 +1,8 @@
 class Asm
 
   class Processor
+    attr_reader :ax, :bx, :cx, :dx
+
     def initialize
       @ax, @bx, @cx, @dx = 0, 0, 0, 0
       @comparison_result = 0
@@ -147,14 +149,21 @@ class Asm
     end
   end
 
-  operations = {
-    equality: {
-      variables: [destination, source],
-      defaults: nil
-    },
-    inc: {
-      variables: [destination, value]
-    }
+  two_argument_operations = {
+    mov: :equality,
+    cmp: :compare,
+  }
+  # two_argument_operations.each do |operation_name, operation|
+  #   define_method operation_name do |destination, source|
+  #     @operations[@line_number] = [operation, destination, source]
+  #     @line_number += 1
+  #     puts "i was here"
+  #   end
+  # end
+
+  default_argument_operations = {
+    inc: :increment,
+    dec: :decrement
   }
 
   def mov(destination, source)
@@ -217,12 +226,13 @@ class Asm
     @pointer = 0
     while @operations[@pointer] != :end do # |picked_number|
       old_pointer = @pointer
-      result = public_send(*@operations[@pointer])
+      result = @processor.public_send(*@operations[@pointer])
       if @operations[@pointer] != :end and old_pointer == @pointer
         @pointer +=1
       end
     end
     [@ax, @bx, @cx, @dx]
+    [@processor.ax, @processor.bx, @processor.cx, @processor.dx]
   end
 
   def self.asm(&block)
