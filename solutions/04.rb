@@ -17,7 +17,7 @@ class Asm
       @operations = {}
       @labels = []
       @line_number = 0
-      # @comparison_result = 0
+      # @comparison = 0
       @processor = Processor.new
     end
 
@@ -50,7 +50,7 @@ class Asm
     end
 
     two_argument_operations = {
-      mov: :equality,
+      mov: :assignment,
       cmp: :compare,
     }
     two_argument_operations.each do |operation_name, operation|
@@ -114,10 +114,10 @@ class Asm
 
     def initialize
       @ax, @bx, @cx, @dx = 0, 0, 0, 0
-      @comparison_result = 0
+      @comparison = 0
     end
 
-    def equality(destination, source)
+    def assignment(destination, source)
       case source
         when :ax then val = @ax
         when :bx then val = @bx
@@ -185,19 +185,20 @@ class Asm
       end
 
       case register
-        when :ax then @comparison_result = @ax - val
-        when :bx then @comparison_result = @bx - val
-        when :cx then @comparison_result = @cx - val
-        when :dx then @comparison_result = @dx - val
+        when :ax then @comparison = @ax - val
+        when :bx then @comparison = @bx - val
+        when :cx then @comparison = @cx - val
+        when :dx then @comparison = @dx - val
       end
       nil
     end
 
-    def method_missing(name, *args)
-      super
-    end
+    # def method_missing(name, *args)
+    #   super
+    # end
 
-    def jump(position)
+    def jump(position, operation = nil)
+      return nil if operation and not @comparison.public_send(operation, 0)
       if position.is_a? Symbol
         # raise # this send should be against the other class,
         #   because there we have defined the labels
@@ -207,9 +208,13 @@ class Asm
       end
     end
 
+    def jump_not_equal(position)
+      jump(position) if @comparison != 0
+    end
+
     jumps = {
       jump_equal: :==,
-      jump_not_equal: :_=,
+      # jump_not_equal: :_=,
       jump_less: :<,
       jump_less_equal: :<=,
       jump_greater: :>,
@@ -219,17 +224,7 @@ class Asm
     jumps.each do |operation_name, operation|
       define_method operation_name do |position|
         puts "I'm jumping to #{position}"
-
-        if operation != :_=
-          if @comparison_result.public_send(operation, 0)
-            jump(position)
-          end
-        else
-          if not @comparison_result.public_send(:==, 0)
-            jump(position, instance)
-          end
-        end
-
+        jump(position, operation)# if @comparison.public_send(operation, 0)
       end
     end
 
