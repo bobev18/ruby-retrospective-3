@@ -14,6 +14,11 @@ task :watch do
   system 'bundle exec watchr watchr.rb'
 end
 
+desc 'test 04'
+task :test04 do
+  system("bundle exec rspec --require ./solutions/04.rb --fail-fast --color specs/04_spec.rb")
+end
+
 namespace :tasks do
   tasks.each do |task_number|
     task(task_number) { Rake::Task['tasks:run'].execute(task_number) }
