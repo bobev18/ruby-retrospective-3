@@ -2,9 +2,6 @@ class Asm
   def self.asm(&block)
     asm = Operations.new
     asm.instance_eval &block
-    puts "ops #{asm.operations.size}"
-    asm.operations.each { |op| puts op.inspect }
-    puts
     asm.execute
   end
 
@@ -22,30 +19,23 @@ class Asm
     end
 
     def method_missing(name, *args)
-      puts "*** method method_missing '#{name}', returning Symbol"
       name.to_sym
     end
 
     def label(name)
       local_number = @line_number
       @labels << name
-      puts "lable to create method #{name}"
       # I tried using define method directly but it was failing -- not sure why
       # define_method(name) do
       self.class.send(:define_method, name) do
-        puts "this is dynamically created method '#{name}',"
-        puts "which returns #{local_number}"
         local_number
       end
     end
 
     def clean_up
-      puts "cleaning..."
       @labels.each do |label_name|
         # remove_method label_name
         self.class.send(:remove_method, label_name)
-        puts "call public_send(#{label_name}) should just return a Symbol:"
-        puts "#{public_send(label_name)}"
       end
     end
 
@@ -57,7 +47,6 @@ class Asm
       define_method operation_name do |destination, source|
         @operations[@line_number] = [operation, destination, source]
         @line_number += 1
-        puts "2 arg created #{@operations[@line_number-1]}"
       end
     end
 
@@ -69,7 +58,6 @@ class Asm
       define_method operation_name do |destination, value = 1|
         @operations[@line_number] = [operation, destination, value]
         @line_number += 1
-        puts "1 arg 1 default created #{@operations[@line_number-1]}"
       end
     end
 
@@ -86,7 +74,6 @@ class Asm
       define_method operation_name do |position|
         @operations[@line_number] = [operation, position]
         @line_number += 1
-        puts "1 arg created #{@operations[@line_number-1]}"
       end
     end
 
@@ -95,7 +82,6 @@ class Asm
       @pointer = 0
       while @operations[@pointer] != :end do # |picked_number|
         old_pointer = @pointer
-        puts "processing operation #{@pointer}: #{@operations[@pointer]}"
         result = @processor.public_send(*@operations[@pointer])
         @pointer = result if result
         if @operations[@pointer] != :end and old_pointer == @pointer
@@ -103,7 +89,6 @@ class Asm
         end
       end
       clean_up
-      puts "\n\n"
       # [@ax, @bx, @cx, @dx]
       [@processor.ax, @processor.bx, @processor.cx, @processor.dx]
     end
@@ -223,7 +208,6 @@ class Asm
 
     jumps.each do |operation_name, operation|
       define_method operation_name do |position|
-        puts "I'm jumping to #{position}"
         jump(position, operation)# if @comparison.public_send(operation, 0)
       end
     end
