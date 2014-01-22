@@ -213,7 +213,7 @@ module Graphics
 
     private
 
-    def corner_setter(top_left, top_right, bottom_right, bottom_left)
+    def set_corners(top_left, top_right, bottom_right, bottom_left)
       @top_left     = top_left
       @top_right    = top_right
       @bottom_right = bottom_right
@@ -224,9 +224,9 @@ module Graphics
       other_left  = Point.new @left.x, @right.y
       other_right = Point.new @right.x, @left.y
       if @left.y < other_left.y
-        corner_setter @left, other_right, @right, other_left
+        set_corners(@left, other_right, @right, other_left)
       else
-        corner_setter other_left, @right, other_right, @left
+        set_corners(other_left, @right, other_right, @left)
       end
     end
   end

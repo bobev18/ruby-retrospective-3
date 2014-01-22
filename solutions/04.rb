@@ -15,11 +15,11 @@ class Asm
   end
 
   def mov(destination, source)
-    @operations[@line_number] = [:eq, destination, source]
+    @operations[@line_number] = [:equality, destination, source]
     @line_number += 1
   end
 
-  def eq(destination, source)
+  def equality(destination, source)
     case source
       when :ax then val = @ax
       when :bx then val = @bx
@@ -183,15 +183,15 @@ class Asm
     if @comparison_result >= 0
       jump(position)
     end
-  end  
+  end
 
   def execute
-    @operations[@line_number] = :END
+    @operations[@line_number] = :end
     @pointer = 0
-    while @operations[@pointer] != :END do # |picked_number|
+    while @operations[@pointer] != :end do # |picked_number|
       old_pointer = @pointer
       result = public_send(*@operations[@pointer])
-      if @operations[@pointer] != :END and old_pointer == @pointer
+      if @operations[@pointer] != :end and old_pointer == @pointer
         @pointer +=1
       end
     end
