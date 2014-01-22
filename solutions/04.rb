@@ -116,6 +116,7 @@ class Asm
         when :bx then @bx = value
         when :cx then @cx = value
         when :dx then @dx = value
+        when :comparison then @comparison = value
       end
     end
 
@@ -142,7 +143,7 @@ class Asm
     def compare(register, value)
       val = read(value)
       base = read(register)
-      write(@comparison, base - val)
+      write(:comparison, base - val)
 
       # case register
       #   when :ax then @comparison = @ax - val
