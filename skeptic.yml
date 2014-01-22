@@ -40,5 +40,5 @@
   no_trailing_whitespace: true
   check_syntax: true
   no_global_variables: true
-  english_words_for_names: 'asm ax bx cx dx mov inc dec cmp jmp je jne jl jle jg jge'
+  english_words_for_names: 'asm ax bx cx dx mov inc dec cmp jmp je jne jl jle jg jge decrement'
   naming_conventions: true

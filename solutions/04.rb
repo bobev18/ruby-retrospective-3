@@ -15,21 +15,37 @@ class Asm
     def initialize
       # @ax, @bx, @cx, @dx = 0, 0, 0, 0
       @operations = {}
+      @labels = []
       @line_number = 0
       # @comparison_result = 0
       @processor = Processor.new
     end
 
     def method_missing(name, *args)
+      puts "*** method method_missing '#{name}', returning Symbol"
       name.to_sym
     end
 
     def label(name)
       local_number = @line_number
-      # I tried using define method directly but it was failing -- not sure why
+      @labels << name
       puts "lable to create method #{name}"
+      # I tried using define method directly but it was failing -- not sure why
+      # define_method(name) do
       self.class.send(:define_method, name) do
+        puts "this is dynamically created method '#{name}',"
+        puts "which returns #{local_number}"
         local_number
+      end
+    end
+
+    def clean_up
+      puts "cleaning..."
+      @labels.each do |label_name|
+        # remove_method label_name
+        self.class.send(:remove_method, label_name)
+        puts "call public_send(#{label_name}) should just return a Symbol:"
+        puts "#{public_send(label_name)}"
       end
     end
 
@@ -86,6 +102,8 @@ class Asm
           @pointer +=1
         end
       end
+      clean_up
+      puts "\n\n"
       # [@ax, @bx, @cx, @dx]
       [@processor.ax, @processor.bx, @processor.cx, @processor.dx]
     end
@@ -181,7 +199,8 @@ class Asm
 
     def jump(position)
       if position.is_a? Symbol
-        # raise # this send should be against the other class, because there we have defined the labels
+        # raise # this send should be against the other class,
+        #   because there we have defined the labels
         public_send(position)
       else
         position
