@@ -1,18 +1,27 @@
 class Asm
-
-
+  def self.asm(&block)
+    asm = Operations.new
+    asm.instance_eval &block
+    puts "ops #{asm.operations.size}"
+    asm.operations.each { |op| puts op.inspect }
+    puts
+    asm.execute
+  end
 
 
   class Operations
-
-    attr_reader :operations, :ax, :bx, :cx, :dx
+    attr_reader :operations
 
     def initialize
-      @ax, @bx, @cx, @dx = 0, 0, 0, 0
+      # @ax, @bx, @cx, @dx = 0, 0, 0, 0
       @operations = {}
       @line_number = 0
       # @comparison_result = 0
       @processor = Processor.new
+    end
+
+    def method_missing(name, *args)
+      name.to_sym
     end
 
     def label(name)
@@ -48,27 +57,6 @@ class Asm
       end
     end
 
-
-    # def mov(destination, source)
-    #   @operations[@line_number] = [:equality, destination, source]
-    #   @line_number += 1
-    # end
-
-    # def cmp(register, value)
-    #   @operations[@line_number] = [:compare, register, value]
-    #   @line_number += 1
-    # end
-
-    # def inc(destination, value = 1)
-    #   @operations[@line_number] = [:increment, destination, value]
-    #   @line_number += 1
-    # end
-
-    # def dec(destination, value = 1)
-    #   @operations[@line_number] = [:decrement, destination, value]
-    #   @line_number += 1
-    # end
-
     one_argument_operations = {
       jmp: :jump,
       je:  :jump_equal,
@@ -86,42 +74,6 @@ class Asm
       end
     end
 
-
-    # def jmp(position)
-    #   @operations[@line_number] = [:jump, position]
-    #   @line_number += 1
-    # end
-
-    # def je(position)
-    #   @operations[@line_number] = [:jump_equal, position]
-    #   @line_number += 1
-    # end
-
-    # def jne(position)
-    #   @operations[@line_number] = [:jump_not_equal, position]
-    #   @line_number += 1
-    # end
-
-    # def jl(position)
-    #   @operations[@line_number] = [:jump_less, position]
-    #   @line_number += 1
-    # end
-
-    # def jle(position)
-    #   @operations[@line_number] = [:jump_less_equal, position]
-    #   @line_number += 1
-    # end
-
-    # def jg(position)
-    #   @operations[@line_number] = [:jump_greater, position]
-    #   @line_number += 1
-    # end
-
-    # def jge(position)
-    #   @operations[@line_number] = [:jump_greater_equal, position]
-    #   @line_number += 1
-    # end
-
     def execute
       @operations[@line_number] = :end
       @pointer = 0
@@ -134,17 +86,16 @@ class Asm
           @pointer +=1
         end
       end
-      [@ax, @bx, @cx, @dx]
-      # [@processor.ax, @processor.bx, @processor.cx, @processor.dx]
+      # [@ax, @bx, @cx, @dx]
+      [@processor.ax, @processor.bx, @processor.cx, @processor.dx]
     end
-
   end
 
   class Processor < Operations
-    # attr_reader :ax, :bx, :cx, :dx
+    attr_reader :ax, :bx, :cx, :dx
 
     def initialize
-      # @ax, @bx, @cx, @dx = 0, 0, 0, 0
+      @ax, @bx, @cx, @dx = 0, 0, 0, 0
       @comparison_result = 0
     end
 
@@ -263,59 +214,7 @@ class Asm
       end
     end
 
-  # def jump_equal(position)
-  #   if @comparison_result == 0
-  #     jump(position)
-  #   end
-  # end
-
-  # def jump_not_equal(position)
-  #   if @comparison_result != 0
-  #     jump(position)
-  #   end
-  # end
-
-  # def jump_less(position)
-  #   if @comparison_result < 0
-  #     jump(position)
-  #   end
-  # end
-
-  # def jump_less_equal(position)
-  #   if @comparison_result <= 0
-  #     jump(position)
-  #   end
-  # end
-
-  # def jump_greater(position)
-  #   if @comparison_result > 0
-  #     jump(position)
-  #   end
-  # end
-
-  # def jump_greater_equal(position)
-  #   if @comparison_result >= 0
-  #     jump(position)
-  #   end
-  # end
-
-
-
-
-
   end
 
 
-  def self.asm(&block)
-    asm = Operations.new
-    asm.instance_eval &block
-    puts "ops #{asm.operations.size}"
-    asm.operations.each { |op| puts op.inspect }
-    puts
-    asm.execute
-  end
-
-  def method_missing(name, *args)
-    name.to_sym
-  end
 end
