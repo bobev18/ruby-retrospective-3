@@ -102,79 +102,54 @@ class Asm
       @comparison = 0
     end
 
-    def assignment(destination, source)
-      case source
-        when :ax then val = @ax
-        when :bx then val = @bx
-        when :cx then val = @cx
-        when :dx then val = @dx
+    def read(register_or_value)
+      if [:ax, :bx, :cx, :dx].include? register_or_value
+        public_send(register_or_value)
       else
-        val = source
+        register_or_value
       end
+    end
 
+    def write(destination, value)
       case destination
-        when :ax then @ax = val
-        when :bx then @bx = val
-        when :cx then @cx = val
-        when :dx then @dx = val
+        when :ax then @ax = value
+        when :bx then @bx = value
+        when :cx then @cx = value
+        when :dx then @dx = value
       end
+    end
+
+    def assignment(destination, source)
+      val = read(source)
+      write(destination, val)
       nil
     end
 
     def increment(destination, value)
-      case value
-        when :ax then val = @ax
-        when :bx then val = @bx
-        when :cx then val = @cx
-        when :dx then val = @dx
-      else
-        val = value
-      end
-
-      case destination
-        when :ax then @ax += val
-        when :bx then @bx += val
-        when :cx then @cx += val
-        when :dx then @dx += val
-      end
+      val = read(value)
+      old_val = read(destination)
+      write(destination, old_val + val)
       nil
     end
 
     def decrement(destination, value)
-      case value
-        when :ax then val = @ax
-        when :bx then val = @bx
-        when :cx then val = @cx
-        when :dx then val = @dx
-      else
-        val = value
-      end
-
-      case destination
-        when :ax then @ax -= val
-        when :bx then @bx -= val
-        when :cx then @cx -= val
-        when :dx then @dx -= val
-      end
+      val = read(value)
+      old_val = read(destination)
+      write(destination, old_val - val)
       nil
     end
 
     def compare(register, value)
-      case value
-        when :ax then val = @ax
-        when :bx then val = @bx
-        when :cx then val = @cx
-        when :dx then val = @dx
-      else
-        val = value
-      end
+      val = read(value)
+      base = read(register)
+      write(@comparison, base - val)
 
-      case register
-        when :ax then @comparison = @ax - val
-        when :bx then @comparison = @bx - val
-        when :cx then @comparison = @cx - val
-        when :dx then @comparison = @dx - val
-      end
+      # case register
+      #   when :ax then @comparison = @ax - val
+      #   when :bx then @comparison = @bx - val
+      #   when :cx then @comparison = @cx - val
+      #   when :dx then @comparison = @dx - val
+      # end
       nil
     end
 
