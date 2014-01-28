@@ -1,3 +1,10 @@
+# This is the code I would have turned in as solution, not retrospective -
+#   I haven't checked anyone else's solution of 04. I realize that adjusting
+#   for skeptic conditions made my code more unreadable, and that the code I
+#   submitted in the timeframe is more understandable, although has huge
+#   case of repetition code smell.
+
+
 class Asm
   def self.asm(&block)
     asm = Operations.new
