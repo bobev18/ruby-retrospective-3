@@ -112,7 +112,8 @@ class Asm
 
   class Processor < Operations
     include Jumpers
-    attr_reader :ax, :bx, :cx, :dx
+    # attr_reader :ax, :bx, :cx, :dx
+    attr_accessor :ax, :bx, :cx, :dx, :comparison
 
     def initialize
       @ax, @bx, @cx, @dx = 0, 0, 0, 0
@@ -128,13 +129,15 @@ class Asm
     end
 
     def write(destination, value)
-      case destination
-        when :ax then @ax = value
-        when :bx then @bx = value
-        when :cx then @cx = value
-        when :dx then @dx = value
-        when :comparison then @comparison = value
-      end
+      public_send("#{destination}=", value)
+
+      # case destination
+      #   when :ax then @ax = value
+      #   when :bx then @bx = value
+      #   when :cx then @cx = value
+      #   when :dx then @dx = value
+      #   when :comparison then @comparison = value
+      # end
     end
 
     def assignment(destination, source)
@@ -176,7 +179,10 @@ class Asm
       end
     end
 
+    # private
+
+    # def ax=(value)
+    #   @ax = value
+    # end
   end
-
-
 end
