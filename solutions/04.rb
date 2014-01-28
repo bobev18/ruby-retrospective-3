@@ -9,11 +9,9 @@ class Asm
     attr_reader :operations
 
     def initialize
-      # @ax, @bx, @cx, @dx = 0, 0, 0, 0
       @operations = {}
       @labels = []
       @line_number = 0
-      # @comparison = 0
       @processor = Processor.new
     end
 
@@ -24,7 +22,9 @@ class Asm
     def label(name)
       local_number = @line_number
       @labels << name
-      # I tried using define method directly but it was failing -- not sure why
+      # I tried using define_method directly but it is failing
+      # That's because the method #define_method is not in Object,
+      #   but in class "Class"
       # define_method(name) do
       self.class.send(:define_method, name) do
         local_number
@@ -32,9 +32,27 @@ class Asm
     end
 
     def clean_up
+      # without this, the label methods persisted in between rspec tests
       @labels.each do |label_name|
         # remove_method label_name
         self.class.send(:remove_method, label_name)
+      end
+      [@processor.ax, @processor.bx, @processor.cx, @processor.dx]
+    end
+
+    one_argument_operations = {
+      jmp: :jump,
+      je:  :jump_equal,
+      jne: :jump_not_equal,
+      jl:  :jump_less,
+      jle: :jump_less_equal,
+      jg:  :jump_greater,
+      jge: :jump_greater_equal
+    }
+    one_argument_operations.each do |operation_name, operation|
+      define_method operation_name do |position|
+        @operations[@line_number] = [operation, position]
+        @line_number += 1
       end
     end
 
@@ -60,36 +78,13 @@ class Asm
       end
     end
 
-    one_argument_operations = {
-      jmp: :jump,
-      je:  :jump_equal,
-      jne: :jump_not_equal,
-      jl:  :jump_less,
-      jle: :jump_less_equal,
-      jg:  :jump_greater,
-      jge: :jump_greater_equal
-    }
-    one_argument_operations.each do |operation_name, operation|
-      define_method operation_name do |position|
-        @operations[@line_number] = [operation, position]
-        @line_number += 1
-      end
-    end
-
     def execute
-      @operations[@line_number] = :end
       @pointer = 0
-      while @operations[@pointer] != :end do # |picked_number|
-        old_pointer = @pointer
+      while @pointer < @line_number do
         result = @processor.public_send(*@operations[@pointer])
-        @pointer = result if result
-        if @operations[@pointer] != :end and old_pointer == @pointer
-          @pointer +=1
-        end
+        @pointer = result ? result : @pointer + 1
       end
       clean_up
-      # [@ax, @bx, @cx, @dx]
-      [@processor.ax, @processor.bx, @processor.cx, @processor.dx]
     end
   end
 
@@ -174,6 +169,7 @@ class Asm
       if position.is_a? Symbol
         # raise # this send should be against the other class,
         #   because there we have defined the labels
+        # works because "super" is in te hierarchy chain
         public_send(position)
       else
         position
