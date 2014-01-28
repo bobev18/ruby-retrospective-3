@@ -146,19 +146,33 @@ class Asm
       nil
     end
 
-    def increment(destination, value)
-      val = read(value)
-      old_val = read(destination)
-      write(destination, old_val + val)
-      nil
+    inc_n_dec = {
+      increment: :+,
+      decrement: :-
+    }
+
+    inc_n_dec.each do |method_name, operation|
+      define_method method_name do |destination, value|
+        val = read(value)
+        old_val = read(destination)
+        write(destination, old_val.public_send(operation, val))
+        nil
+      end
     end
 
-    def decrement(destination, value)
-      val = read(value)
-      old_val = read(destination)
-      write(destination, old_val - val)
-      nil
-    end
+    # def increment(destination, value)
+    #   val = read(value)
+    #   old_val = read(destination)
+    #   write(destination, old_val + val)
+    #   nil
+    # end
+
+    # def decrement(destination, value)
+    #   val = read(value)
+    #   old_val = read(destination)
+    #   write(destination, old_val - val)
+    #   nil
+    # end
 
     def compare(register, value)
       val = read(value)
@@ -178,11 +192,5 @@ class Asm
         position
       end
     end
-
-    # private
-
-    # def ax=(value)
-    #   @ax = value
-    # end
   end
 end
